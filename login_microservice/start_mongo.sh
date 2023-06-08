@@ -20,18 +20,3 @@ fi
 done
 
 trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
-mongosh --eval "rs.initiate({ _id: \"tasksManager\", members: [{_id: 0, host: \"localhost:27017\"}, {_id: 1, host: \"localhost:27018\"}, {_id: 2, host: \"localhost:27019\"}]})" &
-
-echo "Press 'q' to exit"
-count=0
-while : ; do
-read -n 1 k <&1
-if [[ $k = q ]] ; then
-printf "\nQuitting from the program\n"
-break
-else
-echo "Press 'q' to exit"
-fi
-done
-
-trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
