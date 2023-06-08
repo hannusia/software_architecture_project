@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Feedback Page</title>
+</head>
+<body>
+    <h1>Feedback Page</h1>
+
+    <h3>All feedbacks:</h3>
+    {% for feedback in feedbacks %}
+    <p>{{ feedback }}</p>
+    {% endfor %}
+
+    <br> <br>
+
+    <form action="/feedback" method="POST">
+        <label for="feedback">Your feedback:</label>
+        <input type="text" id="feedback" name="feedback" required>
+        <br>
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>

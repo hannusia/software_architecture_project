@@ -38,7 +38,7 @@ def login_post():
     if (len(list(db.find({"login":request.form["login"], "password":request.form["pass"]}))) == 0):
         return render_template('login.html', incorrect="Incorrect username or password")
     
-    return render_template('login.html') # TODO redirect inside
+    return redirect("http://127.0.0.1:5000") # TODO redirect inside
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5001)
