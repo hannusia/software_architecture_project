@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 import os
 
-# import hazelcast
+import hazelcast
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
@@ -13,13 +13,13 @@ app.config['SECRET_KEY'] = 'your_secret_key'
 db = SQLAlchemy(app)
 
 
-# client = hazelcast.HazelcastClient(cluster_name="tasks") 
 
-# map = client.get_map("my-distributed-map").blocking()
+client = hazelcast.HazelcastClient(
+    cluster_name="tasks", 
+)
 
-# map.put("1", "John")
-# map.put("2", "Mary")
-# map.put("3", "Jane")
+mapp = client.get_map("tasks").blocking() 
+
 
 
 class Task(db.Model):
@@ -50,6 +50,8 @@ def add():
         db.session.add(new_task)
         db.session.commit()
 
+        mapp.put(new_task.id, new_task)
+
         return redirect(url_for('index'))
 
     return render_template('add.html')
@@ -60,12 +62,14 @@ def delete(task_id):
 
     if request.method == 'POST':
         db.session.delete(task)
+        mapp.remove(task_id)
         db.session.commit()
         return redirect(url_for('index'))
 
     return render_template('delete.html', task=task)
 
 if __name__ == '__main__':
+
     with app.app_context():
         db.create_all()
     app.run(debug=True)
