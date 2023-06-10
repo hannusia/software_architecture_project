@@ -1,5 +1,6 @@
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, url_for
 from pymongo import MongoClient
+from uuid import uuid1
 
 mongoserver_uri = f"mongodb://127.0.0.1:27017"
                     
@@ -23,8 +24,7 @@ def register_post():
         return render_template("register.html", user_exists="Database is currently in read-only mode")
     if (len(list(db.find({"login": request.form["login"]}))) != 0):
         return render_template("register.html", user_exists="User Already exists")
-    
-    user = {"login": request.form["login"], "password": request.form["pass"]}
+    user = {"login": request.form["login"], "password": request.form["pass"], "uuid": uuid1().int % (2^64) }
     db.insert_one(user)
     
     return redirect("/login")
@@ -38,7 +38,9 @@ def login_post():
     if (len(list(db.find({"login":request.form["login"], "password":request.form["pass"]}))) == 0):
         return render_template('login.html', incorrect="Incorrect username or password")
     
-    return redirect("http://127.0.0.1:5000") # TODO redirect inside
+    cursor = db.find_one({"login":request.form["login"], "password":request.form["pass"]})
+
+    return redirect(f"http://127.0.0.1:5000?uuid={cursor['uuid']}")
 
 if __name__ == "__main__":
     app.run(debug=True, port=5001)
