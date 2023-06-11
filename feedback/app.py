@@ -9,6 +9,7 @@ app = Flask(__name__)
 keyspace = 'feedback_data'
 fb_table_name = 'feedbacks'
 fb_text_field = 'feedback_text'
+fb_user_field = 'username'
 
 cass_ips = ["127.0.0.1"]
 cass_port = 9042
@@ -25,7 +26,8 @@ session = cluster.connect(keyspace, wait_for_all_pools=False)
 def feedback():
     if request.method == 'POST':
         feedback = request.form['feedback']
-        query = f"INSERT INTO {keyspace}.{fb_table_name} (id, {fb_text_field}) VALUES (uuid(), '{feedback}')"
+        username = 'Anonymous'
+        query = f"INSERT INTO {keyspace}.{fb_table_name} (id, {fb_user_field}, {fb_text_field}) VALUES (uuid(), '{username}', '{feedback}')"
         session.execute(query)
         return render_template('feedback_sent.html')
     else:
@@ -34,7 +36,7 @@ def feedback():
         result = session.execute(f'SELECT * FROM {fb_table_name}')
         rows = []
         for row in result:
-            rows.append(row.feedback_text)
+            rows.append([row.username, row.feedback_text])
         app.logger.info(rows)
         return render_template('feedback.html', feedbacks=rows)
 

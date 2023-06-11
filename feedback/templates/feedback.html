@@ -7,8 +7,8 @@
     <h1>Feedback Page</h1>
 
     <h3>All feedbacks:</h3>
-    {% for feedback in feedbacks %}
-    <p>{{ feedback }}</p>
+    {% for username, feedback in feedbacks %}
+    <p>{{username}}: {{ feedback }}</p>
     {% endfor %}
 
     <br> <br>
