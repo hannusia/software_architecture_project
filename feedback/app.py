@@ -1,3 +1,4 @@
+import flask
 from flask import Flask, render_template, request
 from cassandra.cluster import Cluster
 from cassandra.auth import PlainTextAuthProvider
@@ -5,6 +6,7 @@ import socket
 import os
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your_secret_key'
 
 keyspace = 'feedback_data'
 fb_table_name = 'feedbacks'
@@ -24,10 +26,16 @@ session = cluster.connect(keyspace, wait_for_all_pools=False)
 
 @app.route('/feedback', methods = ['GET', 'POST'])
 def feedback():
+    if flask.session['username'] != 'None':
+        username = request.args.get('username')
+        flask.session['username'] = username
+        print(username)
+
     if request.method == 'POST':
         feedback = request.form['feedback']
-        username = 'Anonymous'
-        query = f"INSERT INTO {keyspace}.{fb_table_name} (id, {fb_user_field}, {fb_text_field}) VALUES (uuid(), '{username}', '{feedback}')"
+        username = flask.session.get('username')
+        print(username)
+        query = f"INSERT INTO {keyspace}.{fb_table_name} (id, {fb_user_field}, {fb_text_field}) VALUES (uuid(), 'User', '{feedback}')"
         session.execute(query)
         return render_template('feedback_sent.html')
     else:
