@@ -38,7 +38,10 @@
             {% endfor %}
         </div>
 
-        <a href="/add" class="btn btn-primary">Add Task</a>
+        {% if user_uuid %}
+        <a href="{{ url_for('add', uuid=user_uuid) }}" class="btn btn-primary">Add Task</a>
+        {% endif %}
+
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
